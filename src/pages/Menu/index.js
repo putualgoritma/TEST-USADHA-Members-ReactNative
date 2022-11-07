@@ -11,6 +11,7 @@ import Config from 'react-native-config';
 
 const Menu = ({navigation}) => {
   const TOKEN = useSelector((state) => state.TokenApi);
+  const userReducer = useSelector((state) => state.UserReducer);
 
   const logout = () => {
     Axios.get(Config.API_LOGOUT,   {
@@ -69,7 +70,15 @@ const Menu = ({navigation}) => {
             <SubMenu 
               titleMenu="Pohon Jaringan" 
               icon="tree" 
-              navigasi={() => navigation.navigate('Tree')}
+              navigasi={() => navigation.navigate('Tree', { topid: userReducer.id })}
+            />
+          </View>
+          <View style={styles.menu}>
+            <Text style={styles.titleMenu}>Pairing Tunggu</Text>
+            <SubMenu 
+              titleMenu="Pairing Tunggu" 
+              icon="link" 
+              navigasi={() => navigation.navigate('Pairing', { topid: userReducer.id })}
             />
           </View>
           <View style={styles.menu}>

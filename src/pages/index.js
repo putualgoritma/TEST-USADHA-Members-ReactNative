@@ -38,6 +38,9 @@ import Convert from './Convert';
 import Package from './Package';
 import Products from './Products';
 import Career from './Career';
+import HU from './HU';
+import TreeBin from './TreeBin';
+import Pairing from './Pairing'
 export {
   Product,
   Profile,
@@ -79,4 +82,7 @@ export {
   Package,
   Products,
   Career,
+  HU,
+  TreeBin,
+  Pairing,
 };

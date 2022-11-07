@@ -43,6 +43,9 @@ import {
   Package,
   Products,
   Career,
+  HU,
+  TreeBin,
+  Pairing,
 } from '../pages';
 import {ButtomNavigator, NotifAlert} from '../component';
 
@@ -260,6 +263,21 @@ const Router = () => {
       <Stack.Screen
         name="Career"
         component={Career}
+        options={{headerShown: false}}  
+      />
+      <Stack.Screen
+        name="HU"
+        component={HU}
+        options={{headerShown: false}}  
+      />
+      <Stack.Screen
+        name="TreeBin"
+        component={TreeBin}
+        options={{headerShown: false}}  
+      />
+      <Stack.Screen
+        name="Pairing"
+        component={Pairing}
         options={{headerShown: false}}  
       />
     </Stack.Navigator>

@@ -143,7 +143,7 @@ const TopUp = ({navigation}) => {
     if(selectType== 'otomatis'){
       if(nominal !=0){
          setIsLoading(true)
-          Axios.post('http://admin.belogherbal.com/api/close/topup/map', formTopUp,{
+          Axios.post('http://testadmin.belogherbal.com/api/close/topup/map', formTopUp,{
             headers: {
               Authorization: `Bearer ${TOKEN}`,
               'Accept' : 'application/json' 

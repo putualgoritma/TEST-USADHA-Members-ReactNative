@@ -163,6 +163,19 @@ const WithDraw = ({navigation}) => {
 
 
       useEffect(() => {
+            //if status user
+    if(userReducer.status=='active' && userReducer.activation_type_id<2){
+      Alert.alert(
+        'Peringatan',
+        `Account ini bertipe User, minimal account harus bertipe Silver, mohon lakukan proses upgrade sekarang. `,
+        [
+          {
+            text: 'Ya',
+            onPress: () => navigation.navigate('Dashboard')
+          }
+        ]
+      )              
+    }
             Axios.get(Config.API_POINT_BALANCE + '?customer_id=' + `${userReducer.id}` + '&status_fld=withdraw', {
                   headers : {
                     Authorization: `Bearer ${TOKEN}`,

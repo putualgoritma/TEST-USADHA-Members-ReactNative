@@ -249,12 +249,38 @@ const TokenApi = (state = Token, action) => {
   return state; //dan hasilkan nilai state saat reducer ini dipanggil di store,js
 };
 
+const HU = 1;
+
+const CountHU = (state = HU, action) => {
+  //kirim nilai initiallState ke state
+  if (action.type === 'COUNT_HU') {
+    // console.log(action.token)
+    state = action.hu
+    // console.log('reducer TOken', state)
+  }
+  return state; //dan hasilkan nilai state saat reducer ini dipanggil di store,js
+};
+
+const stateUP = {};
+
+const StatusUP = (state = stateUP, action) => {
+  //kirim nilai initiallState ke state
+  if (action.type === 'STATUS_UP') {
+    // console.log(action.token)
+    state = action.sup
+    // console.log('reducer TOken', state)
+  }
+  return state; //dan hasilkan nilai state saat reducer ini dipanggil di store,js
+};
+
 const reducer = combineReducers({
   UserReducer,
   // LoginReducer,
   CartReducer,
   TokenApi,
   PackageReducer,
+  CountHU,
+  StatusUP,
 });
 
 export default reducer;

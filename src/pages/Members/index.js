@@ -34,8 +34,9 @@ const Members = ({ navigation, route }) => {
   const [refresh, setRefresh] = useState(false)
   const [find, setFind] = useState('')
   const [form, setForm] = useState({
-    customer_id: '',
+    id: '',
     phone: '',
+    owner_id: '',
   })
   const [redirect, setRedirect] = useState(route.params.redirect)
 
@@ -52,10 +53,10 @@ const Members = ({ navigation, route }) => {
 
   useEffect(() => {
     // alert(form.phone)
-    if (form.phone != null && form.phone != '') {
+    if ((form.phone != null && form.phone != '') || (form.id != form.owner_id)) {
       if (redirect == 'transfer') {
         //alert('transfer'+form.phone)
-        navigation.navigate('Transfer', { dataScan: form.phone })
+        navigation.navigate('Transfer', { dataScan: form.id })
       } else {
         //alert('jaringan'+form.id)
         navigation.navigate('Jaringan', { dataScan: form.id })
@@ -130,7 +131,8 @@ const Members = ({ navigation, route }) => {
         select={() => {
           setForm({
             phone: item.phone,
-            id: item.id
+            id: item.id,
+            owner_id: item.owner_id
           });
         }}
         key={item.id}

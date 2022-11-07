@@ -7,13 +7,12 @@ import {
   SafeAreaView,
   View,
   TouchableOpacity,
-  Image,
-  Alert
+  Image
 } from 'react-native';
 import {HeaderComponent, TopUp, Promo, Releoder,Header, ButtonCustom} from '../../component';
 // import {DashboardProduct} from '../../component/Product';
 import {colors} from '../../utils/colors';
-import {useSelector} from 'react-redux';
+import {useDispatch,useSelector} from 'react-redux';
 import Axios from 'axios';
 import { Rupiah } from '../../helper/Rupiah';
 import {useIsFocused} from '@react-navigation/native';
@@ -22,6 +21,7 @@ import {
   promo1,
   promo2,
   promo3,
+  account,
 } from '../../assets';
 import Config from "react-native-config";
 import { BackHandler } from 'react-native';
@@ -37,13 +37,12 @@ const Dashboard = ({navigation}) => {
   const [products, setProducts] = useState({});
   const [isLoading, setLoading] = useState(true);
   const userReducer = useSelector((state) => state.UserReducer);
-  const statusUP = useSelector((state) => state.StatusUP);
   const TOKEN = useSelector((state) => state.TokenApi);
-  const HU = useSelector((state) => state.CountHU);
   const [point, setPoint] = useState(0)
   const isFocused = useIsFocused();
   const [notifBagde, setNotifBadge] = useState(0)
   const source = Axios.CancelToken.source();
+  const dispatch = useDispatch();
 
   const onRefresh = React.useCallback(() => {
     setRefreshing(true);
@@ -55,79 +54,11 @@ const Dashboard = ({navigation}) => {
     if(TOKEN == ''){
       navigation.replace('Login')
     }else{
-      if(isFocused){
+     if(isFocused){
         getProduct();
       }
     }
   }, [isFocused])
-
-  useEffect(() => {
-   //if status not active
-      if(userReducer.status!='active'){
-        Alert.alert(
-          'Peringatan',
-          `Account ini belum activ, mau lakukan aktivasi sekarang? `,
-          [
-            {
-              text: 'Tidak',
-              onPress: () => console.log('tidak')
-            },
-            {
-              text: 'Ya',
-              onPress: () => navigation.navigate('Profilex')
-            }
-          ]
-        )              
-      } 
-
-      if(statusUP.status==0){
-        Alert.alert(
-          'Peringatan',
-          `Jaringan di Account ini belum activ, upline diatasnya ada yang belum activ, belum min silver atau belum memenuhi syarat 3HU `,
-          [
-            {
-              text: 'OK',
-              onPress: () => console.log('tidak')
-            }
-          ]
-        )              
-      } 
-
-       //if status user
-       if(userReducer.status=='active' && userReducer.activation_type_id<2){
-        Alert.alert(
-          'Peringatan',
-          `Account ini bertipe User, minimal account ini harus bertipe Silver, mau lakukan upgrade sekarang? `,
-          [
-            {
-              text: 'Tidak',
-              onPress: () => console.log('tidak')
-            },
-            {
-              text: 'Ya',
-              onPress: () => navigation.navigate('Profilex')
-            }
-          ]
-        )              
-      } 
-        //if status active and has 3HU
-        if(HU==3 && userReducer.id==userReducer.owner_id && userReducer.activation_type_id<3){
-          Alert.alert(
-            'Peringatan',
-            `Account ini memiliki 3 Hak Usaha (HU), minimal account ini harus bertipe Gold, mau lakukan upgrade sekarang? `,
-            [
-              {
-                text: 'Tidak',
-                onPress: () => console.log('tidak')
-              },
-              {
-                text: 'Ya',
-                onPress: () => navigation.navigate('Package', {dataForm: userReducer, dataType : 'Upgrade'})
-              }
-            ]
-          )            
-        }        
-  }, [])
  
   const menuTopUpHistoryTrasnfer = (type) => {
     if (type === 'topUp') {
@@ -140,7 +71,7 @@ const Dashboard = ({navigation}) => {
   };
 
   const getProduct = () => {
-    Axios.get(Config.API_LIST_PRODUCT_MEMBER, 
+    Axios.get(Config.API_LIST_HU_MEMBER+ `?owner_id=${userReducer.owner_id}`, 
       {
         headers: {
           Authorization: `Bearer ${TOKEN}`,
@@ -149,13 +80,36 @@ const Dashboard = ({navigation}) => {
         }
       }
     ).then((result) => {
-      // console.log('result : ', result.data);
-      setProducts(result.data);
+      console.log('result : ', result.data);
+      setProducts(result.data.data);
       getPoint();
     }).catch((error) => {
       console.log('error ' + error);
       alert('koneksi error, mohon buka ulang aplikasinya')
       BackHandler.exitApp()
+   });
+  };
+
+  const switchUser = (data) => {
+    setLoading(true);
+    Axios.get(Config.API_LOGIN_SWITCH+ `?id=${data.id}`, 
+      {
+        headers: {
+          Authorization: `Bearer ${TOKEN}`,
+          // cancelToken : source.token,
+          'Accept' : 'application/json' ,
+        }
+      }
+    ).then((result) => {
+      console.log('result : ', result.data);
+      dispatch({type: 'SET_DATA_USER', value: result.data.user});
+      setLoading(false);
+      navigation.replace('MainApp');
+    }).catch((error) => {
+      console.log('error ' + error);
+      alert('koneksi error, mohon buka ulang aplikasinya')
+      BackHandler.exitApp()
+      setLoading(false);
    });
   };
 
@@ -217,7 +171,7 @@ const Dashboard = ({navigation}) => {
         }
       >
         <View style={styles.contentHeader}>
-          <Text style={styles.textRp}>Saldo Poin</Text>
+          <Text style={styles.textRp}>Saldo Poin 99</Text>
           <Text style={styles.textRp}>{Rupiah(point)}</Text>
           <View style={{position:'absolute', alignItems : 'center', justifyContent : 'center', width : '100%', marginLeft: 20}}>
             {userReducer.img == null || userReducer.img == '' ?  
@@ -288,28 +242,17 @@ const Dashboard = ({navigation}) => {
             flexDirection : 'row',
             flexWrap : 'wrap',
             backgroundColor : '#ffffff'}}>
-         {products.map((product)=> {
-          let productimg = product.img;
-          if(productimg != null && productimg !=""){
-            productimg  = productimg.replace("/public", "");
-          }
+         {products.map((product)=> {          
           return(
-            <TouchableOpacity style={{width : '50%', backgroundColor : '#ffffff', height : 300, padding : 5, marginBottom : 5,}} onPress ={() => navigation.navigate('DetailProduct', {id: product.id})} key={product.id}>
+            <TouchableOpacity style={{width : '50%', backgroundColor : '#ffffff', height : 200, padding : 5, marginBottom : 5,}} onPress ={() => switchUser({id: product.id})} key={product.id}>
               <View style={{ padding : 5, height :290, borderRadius : 3, borderWidth : 0.1, borderColor : colors.disable, backgroundColor:'#f9fcfb'}}>
                 <View style={{flex:1}}>
                   <Text style={{marginTop : 8, fontWeight : 'bold'}}>{product.name}</Text>
-                  <Image style={styles.imageProduct} source = {{uri : `${Config.BASE_URL}/${productimg}`}}/>
-                  <Text style={{marginVertical : 10}}>{Rupiah(parseInt(product.price))}</Text>
+                  <Image style={styles.imageProduct} source = {account}/>
+                  <Text style={{marginVertical : 10}}>{product.name}</Text>
                   <Text>{product.description}</Text>
                 </View>
-                {/* <View style={{height : 50, backgroundColor : 'red', alignItems : 'center'}}>
-                  <ButtonCustom
-                    width='70%'
-                    name= 'Detail'
-                    color={colors.btn}
-                    radius = {5}
-                  />
-                </View> */}
+                {}
               </View>
             </TouchableOpacity>
           )
@@ -413,7 +356,9 @@ const styles = StyleSheet.create({
     height : 100,
     width : '100%',
     marginTop : 10,
-    resizeMode : 'stretch'
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: '#cccccc'
   }
 });
 

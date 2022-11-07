@@ -48,9 +48,15 @@ const Agen = ({ navigation, route }) => {
     longitude: 0.0000000
   }
   useEffect(() => {
-    console.log('dataForm',dataForm)
-    console.log('dataType',dataType)
-    console.log('activationType',activationType)
+    console.log('dataForm', dataForm)
+    console.log('dataType', dataType)
+    console.log('activationType', activationType)
+    if (dataType == 'Jaringan') {
+      if (dataForm.type_hu == 3 && activationType < 3) {
+        alert('3 HU minimal type Gold')
+        navigation.goBack();
+      }
+    }
     if (isFocused) {
       // requestLocationPermission().then(res => {
       LocationServicesDialogBox.checkLocationServicesIsEnabled({
@@ -237,7 +243,7 @@ const Agen = ({ navigation, route }) => {
               name='Lanjut'
               width='90%'
               color={selectAgen ? colors.btn : colors.disable}
-              func={() => { selectAgen ? navigation.navigate('Courier', { dataAgen: selectAgen, dataForm: dataForm, dataType : dataType, activationType : activationType }) : alert('mohon pilih agen lain') }}
+              func={() => { selectAgen ? navigation.navigate('CheckOut', { dataAgen: selectAgen, dataForm: dataForm, dataType: dataType, activationType: activationType }) : alert('mohon pilih agen lain') }}
 
             />
           </View>

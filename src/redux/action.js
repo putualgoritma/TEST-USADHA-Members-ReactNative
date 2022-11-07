@@ -63,3 +63,11 @@ export const check_out_keranjang = () => {
 export const token_api = (token) => {
   return {type : 'TOKEN_API', token}
 }
+
+export const count_hu = (hu) => {
+  return {type : 'COUNT_HU', hu}
+}
+
+export const status_up = (sup) => {
+  return {type : 'STATUS_UP', sup}
+}

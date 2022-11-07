@@ -45,6 +45,7 @@
     "react-native-simple-radio-button": "^2.7.4",
     "react-native-svg": "^12.1.0",
     "react-native-vector-icons": "^7.1.0",
+    "react-native-walkthrough-tooltip": "^1.4.0",
     "react-native-webview": "^11.13.0",
     "react-redux": "^7.2.2",
     "rn-fetch-blob": "^0.12.0"

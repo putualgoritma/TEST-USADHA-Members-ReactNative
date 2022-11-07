@@ -38,6 +38,19 @@ const Transfer = ({ navigation, route }) => {
   const [transferTo, setTransferTo] = useState('');
 
   useEffect(() => {
+    //if status user
+    if(userReducer.status=='active' && userReducer.activation_type_id<2){
+      Alert.alert(
+        'Peringatan',
+        `Account ini bertipe User, minimal account harus bertipe Silver, mohon lakukan proses upgrade sekarang. `,
+        [
+          {
+            text: 'Ya',
+            onPress: () => navigation.navigate('Dashboard')
+          }
+        ]
+      )              
+    }
     // selectScanMember()
     // setUserSelect(null)
     isMounted = true
@@ -63,7 +76,7 @@ const Transfer = ({ navigation, route }) => {
     // setIsLoading(true)
     if (route.params) {
       if (route.params.dataScan) {
-        Axios.post(Config.API_MEMBER_SHOW, { phone: route.params.dataScan },
+        Axios.post(Config.API_MEMBER_SHOW_ID, { id: route.params.dataScan },
           {
             headers: {
               Authorization: `Bearer ${TOKEN}`,

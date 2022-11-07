@@ -209,7 +209,7 @@ const Profile = ({navigation}) => {
   }
 
   const locationApi = () => {
-    Axios.get('http://admin.belogherbal.com/api/open/location', {
+    Axios.get('http://testadmin.belogherbal.com/api/open/location', {
       headers : {
         'Accept' : 'application/json'
       }

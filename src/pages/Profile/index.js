@@ -13,7 +13,7 @@ import {
 import QRCode from 'react-native-qrcode-svg';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { useDispatch, useSelector } from 'react-redux';
-import { profile } from '../../assets';
+import { profile,account } from '../../assets';
 import { ButtonCustom, HeaderComponent, Releoder } from '../../component';
 // import DropDownPicker from 'react-native-dropdown-picker';
 // import Icon from 'react-native-vector-icons/FontAwesome';
@@ -93,6 +93,7 @@ const Profile = ({ navigation }) => {
     province_id: '',
     city_id: ''
   }
+  const [products, setProducts] = useState({});
 
   const Geo =() => {
     const promiseGeo = new Promise((resolve, reject) => {
@@ -107,7 +108,8 @@ const Profile = ({ navigation }) => {
   }
 
   useEffect(() => {
-    console.log('form',form)
+    console.log('userReducer',userReducer)
+    console.log('provinces',provinces)
     if (isFocused) {
       setLoading(true)
       setForm(userReducer)
@@ -116,7 +118,7 @@ const Profile = ({ navigation }) => {
         ok: "YES",
         cancel: "NO",
       }).then(succes => {
-      Promise.all([getPoint(), locationApi(), requestLocationPermission()]).then(res => {
+      Promise.all([getPoint(), locationApi(), requestLocationPermission(), getHU()]).then(res => {
         Geo().then(loc => {
           setLocation({
             latitude: loc.coords.latitude,
@@ -173,8 +175,58 @@ const Profile = ({ navigation }) => {
     return enableLocation
   }
 
+  const getHU = () => {
+    Axios.get(Config.API_LIST_HU_MEMBER+ `?owner_id=${userReducer.owner_id}&exc=${userReducer.id}`, 
+      {
+        headers: {
+          Authorization: `Bearer ${TOKEN}`,
+          // cancelToken : source.token,
+          'Accept' : 'application/json' ,
+        }
+      }
+    ).then((result) => {
+      console.log('HU', result.data.owner.phone);
+      setProducts(result.data.data);
+      if(userReducer.owner_id!=userReducer.id){
+      setForm({
+        ...form,
+        ['phone']: result.data.owner.phone,
+        ['email']: result.data.owner.email,
+        ['address']: result.data.owner.address,
+      });
+      }
+    }).catch((error) => {
+      console.log('error ' + error);
+      alert('koneksi error, mohon buka ulang aplikasinya')
+      BackHandler.exitApp()
+   });
+  };
+
+  const switchUser = (data) => {
+    setLoading(true);
+    Axios.get(Config.API_LOGIN_SWITCH+ `?id=${data.id}`, 
+      {
+        headers: {
+          Authorization: `Bearer ${TOKEN}`,
+          // cancelToken : source.token,
+          'Accept' : 'application/json' ,
+        }
+      }
+    ).then((result) => {
+      console.log('result : ', result.data);
+      dispatch({type: 'SET_DATA_USER', value: result.data.user});
+      setLoading(false);
+      navigation.replace('MainApp');
+    }).catch((error) => {
+      console.log('error ' + error);
+      alert('koneksi error, mohon buka ulang aplikasinya')
+      BackHandler.exitApp()
+      setLoading(false);
+   });
+  };
+  
   const locationApi = () => {
-    Axios.get('http://admin.belogherbal.com/api/open/location', {
+    Axios.get('http://testadmin.belogherbal.com/api/open/location', {
       headers: {
         'Accept': 'application/json'
       }
@@ -342,12 +394,35 @@ const Profile = ({ navigation }) => {
       <Releoder />
     )
   }
-
+  
   if (form.status == 'pending' || form.status == 'close') {
-    return (
+    return (  
       <View style={styles.container}>
-        <HeaderComponent />
+        <HeaderComponent />        
         <ScrollView>
+        <View style={{ backgroundColor: '#ffffff', padding: 20 }}>
+        <Text style={{ fontSize: 18, fontWeight: 'bold' }}>Switch User</Text>
+        <View style={{width : '100%',
+            padding : 5,
+            flexDirection : 'row',
+            flexWrap : 'wrap',
+            backgroundColor : '#ffffff'}}>
+         {products.map((product)=> {          
+          return(
+            <TouchableOpacity style={{width : 160, backgroundColor : '#ffffff', height : 200, padding : 5, marginBottom : 5,}} onPress ={() => switchUser({id: product.id})} key={product.id}>
+              <View style={{ padding : 5, height :290, borderRadius : 3, borderWidth : 0.1, borderColor : colors.disable, backgroundColor:'#f9fcfb'}}>
+                <View style={{flex:1}}>
+                  <Text style={{marginTop : 8, fontWeight : 'bold'}}>{product.name}</Text>
+                  <Image style={styles.imageProduct} source = {account}/>
+                  <Text style={{marginVertical : 10}}>{product.name}</Text>
+                  <Text>{product.description}</Text>
+                </View>
+                {}
+              </View>
+            </TouchableOpacity>
+          )
+         })}
+        </View></View><View style={styles.line}/>
           <View style={styles.form}>
             <View style={{ marginBottom: 70 }}>
               <Text style={styles.textTitle}>Aktivasi Member</Text>
@@ -407,8 +482,32 @@ const Profile = ({ navigation }) => {
   } else {
     return (
       <View style={styles.container}>
-        <HeaderComponent />
+        <HeaderComponent />        
         <ScrollView>
+        <View style={{ backgroundColor: '#ffffff', padding: 20 }}>
+        <Text style={{ fontSize: 18, fontWeight: 'bold' }}>Switch User</Text>
+        <View style={{width : '100%',
+            padding : 5,
+            flexDirection : 'row',
+            flexWrap : 'wrap',
+            backgroundColor : '#ffffff'}}>
+         {products.map((product)=> {          
+          return(
+            <TouchableOpacity style={{width : 160, backgroundColor : '#ffffff', height : 200, padding : 5, marginBottom : 5,}} onPress ={() => switchUser({id: product.id})} key={product.id}>
+              <View style={{ padding : 5, height :290, borderRadius : 3, borderWidth : 0.1, borderColor : colors.disable, backgroundColor:'#f9fcfb'}}>
+                <View style={{flex:1}}>
+                  <Text style={{marginTop : 8, fontWeight : 'bold'}}>{product.name}</Text>
+                  <Image style={styles.imageProduct} source = {account}/>
+                  <Text style={{marginVertical : 10}}>{product.name}</Text>
+                  <Text>{product.description}</Text>
+                </View>
+                {}
+              </View>
+            </TouchableOpacity>
+          )
+         })}
+        </View></View><View style={styles.line}/>
+        
           {/* update profile */}
           <View style={{ backgroundColor: '#ffffff', padding: 20 }}>
 
@@ -521,12 +620,11 @@ const Profile = ({ navigation }) => {
             {provinces &&
               <Select2
                 isSelectSingle
-                style={{ borderRadius: 5 }}
                 searchPlaceHolderText='Seacrh Province'
                 colorTheme={colors.default}
                 popupTitle="Select Province"
                 // title={form.provinces.title}
-                title={form.provinces ? form.provinces.title : 'Mohon isi data Provinsi'}
+                //title={form.provinces ? form.provinces.title : 'Mohon isi data Provinsi'}
                 selectButtonText='select'
                 cancelButtonText='cancel'
                 data={provinces}
@@ -534,7 +632,7 @@ const Profile = ({ navigation }) => {
                   onInputChange('province_id', value[0])
                   filterCity(value[0])
                 }}
-                style={{ borderColor: colors.default, borderTopWidth: 0, borderRightWidth: 0, borderLeftWidth: 0, }}
+                style={{ borderRadius: 5, borderColor: colors.default, borderTopWidth: 0, borderRightWidth: 0, borderLeftWidth: 0, }}
                 onRemoveItem={value => {
                   onInputChange('province_id', value[0])
                 }}
@@ -548,7 +646,6 @@ const Profile = ({ navigation }) => {
                 <Select2
                   isSelectSingle
                   searchPlaceHolderText='Search City'
-                  style={{ borderRadius: 5 }}
                   colorTheme={colors.default}
                   popupTitle="Select Province"
                   title={form.city ? form.city.title : 'Mohon isi data Kota'}
@@ -561,7 +658,7 @@ const Profile = ({ navigation }) => {
                   onRemoveItem={value => {
                     onInputChange('city_id', value[0])
                   }}
-                  style={{ borderColor: colors.default, borderTopWidth: 0, borderRightWidth: 0, borderLeftWidth: 0, }}
+                  style={{ borderRadius: 5, borderColor: colors.default, borderTopWidth: 0, borderRightWidth: 0, borderLeftWidth: 0, }}
                 />
               </>
             }
@@ -783,5 +880,17 @@ const styles = StyleSheet.create({
   map: {
     height: 300,
     width: '100%',
+  },
+  imageProduct : {
+    height : 100,
+    width : '100%',
+    marginTop : 10,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: '#cccccc'
+  },
+  line: {
+    borderWidth: 3,
+    borderColor: '#e8e8e8',
   },
 });

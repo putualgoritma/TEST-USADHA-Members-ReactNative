@@ -1,7 +1,7 @@
 import { useIsFocused } from '@react-navigation/native';
 import Axios from 'axios';
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View, Alert } from 'react-native';
 import Config from 'react-native-config';
 import { ScrollView, TextInput } from 'react-native-gesture-handler';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -11,6 +11,7 @@ import { Input } from '../../component/Input';
 import { colors } from '../../utils/colors';
 import DropDownPicker from 'react-native-dropdown-picker';
 import Icon from 'react-native-vector-icons/FontAwesome';
+import Select2 from "react-native-select-two"
 
 var colorbtn = colors.disable
 const Jaringan = ({ navigation, route }) => {
@@ -27,7 +28,8 @@ const Jaringan = ({ navigation, route }) => {
     var year = todayTime.getFullYear();
     return year + "-" + month + "-" + day;
   }
-  const [transferTo, setTransferTo] = useState('');
+  const [refTo, setRefTo] = useState(userReducer.code + ' - ' + userReducer.name);
+  const [slotTo, setSlotTo] = useState('');
 
   const [form, setForm] = useState({
     register: dateRegister(),
@@ -37,17 +39,41 @@ const Jaringan = ({ navigation, route }) => {
     email: '',
     address: '',
     ref_id: userReducer.id,
+    refferal: userReducer.refferal,
+    ref_slot_x: userReducer.slot_x,
+    ref_slot_y: userReducer.slot_y,
     sponsor_id: userReducer.id,
     package_id: '',
     agents_id: '',
     agent: null,
-    weight: 0
+    weight: 0,
+    slot_x: 0,
+    slot_y: 0,
+    type_hu: 1,
+    type_hu_name: '1 HU (1 titik Hak Husaha)',
   })
+
+  const mockData = [
+    { id: 1, name: "1 HU (1 titik Hak Husaha)"},
+    { id: 3, name: "3 HU (3 titik Hak Husaha)"},
+  ];
 
   const onInputChange = (input, value) => {
     setForm({
       ...form,
       [input]: value,
+    });
+  };
+
+  const handleType = (id) => {
+    let type_hu_name = '1 HU'
+    if(id==3){
+      type_hu_name = '3 HU'
+    }
+    setForm({
+      ...form,
+      'type_hu': id,
+      'type_hu_name': type_hu_name,
     });
   };
 
@@ -57,7 +83,21 @@ const Jaringan = ({ navigation, route }) => {
   }
 
   useEffect(() => {
+    //if status user
+    if(userReducer.status=='active' && userReducer.activation_type_id<2){
+      Alert.alert(
+        'Peringatan',
+        `Account ini bertipe User, minimal account harus bertipe Silver, mohon lakukan proses upgrade sekarang. `,
+        [
+          {
+            text: 'Ya',
+            onPress: () => navigation.navigate('Dashboard')
+          }
+        ]
+      )              
+    }
     if (route.params) {
+      if (route.params.dataScan) {
       onInputChange('ref_id', route.params.dataScan)
       Axios.post(Config.API_MEMBER_SHOW_ID, { id: route.params.dataScan },
         {
@@ -72,8 +112,11 @@ const Jaringan = ({ navigation, route }) => {
           ...form,
           register: dateRegister(),
           ref_id: result.data.data.id,
+          refferal: result.data.data.refferal,
+          ref_slot_x: result.data.data.slot_x,
+          ref_slot_y: result.data.data.slot_y,
         });
-        setTransferTo(result.data.data.code + ' - ' + result.data.data.name)
+        setRefTo(result.data.data.code + ' - ' + result.data.data.name)
         setLoading(false)
         console.log('result.data', result.data.data)
       }).catch((e) => {
@@ -81,6 +124,15 @@ const Jaringan = ({ navigation, route }) => {
         //navigation.navigate('MenuScan');
       })
     }
+    if (route.params.dataSlotX) {
+      setForm({
+        ...form,
+        slot_x: route.params.dataSlotX,
+        slot_y: route.params.dataSlotY,
+      });
+      setSlotTo('Slot X: '+route.params.dataSlotX + ' - Slot Y: ' + route.params.dataSlotY)
+    }
+  }
   }, [isFocused])
 
   if (loading) {
@@ -95,16 +147,58 @@ const Jaringan = ({ navigation, route }) => {
       <ScrollView>
         <View style={styles.form}>
         <Text style={styles.textTitle}>Pendaftaran Downline</Text>
+          
+        <Select2
+                    isSelectSingle
+                    style={{ borderRadius: 5, borderColor: colors.default }}
+                    searchPlaceHolderText='Search Tipe HU'
+                    colorTheme={colors.default}
+                    popupTitle="Select Tipe HU"
+                    title={form.type_hu_name ? form.type_hu_name : 'Select Tipe HU'}
+                    selectButtonText='select'
+                    cancelButtonText='cancel'
+                    data={mockData}
+                    onSelect={value => {
+                      setForm({
+                        ...form,
+                        type_hu: value[0],
+                        type_hu_name: value==3 ? '3 HU (3 titik Hak Husaha)' : '1 HU (1 titik Hak Husaha)',
+                    })
+                    }}    
+                    onRemoveItem={value => {
+                      setForm({
+                        ...form,
+                        type_hu: value[0],
+                        type_hu_name: value==3 ? '3 HU (3 titik Hak Husaha)' : '1 HU (1 titik Hak Husaha)',
+                    })
+                    }}      
+                />
+
           <View style={{ flexDirection: 'row' }}>
-            <TextInput editable={false} placeholder='Select Referal/Sponsor' style={styles.search} value={transferTo}  ></TextInput>
+          <Text> </Text>
+          </View>
+          
+          <View style={{ flexDirection: 'row' }}>
+            <TextInput editable={false} placeholder='Pilih Referal/Sponsor' style={styles.search} value={refTo}  ></TextInput>
             <ButtonCustom
-              name='Cari'
+              name='Pilih Referal'
               width='40%'
               color={colors.btn}
               func={() => { navigation.navigate('Members', { redirect: 'jaringan' }) }}
-              height={50}
+              height={100}
             />
           </View>
+          <View style={{ flexDirection: 'row' }}>
+            <TextInput editable={false} placeholder='Pilih Slot/Titik Kosong' style={styles.search} value={slotTo}  ></TextInput>
+            <ButtonCustom
+              name='Pilih Slot'
+              width='40%'
+              color={colors.btn}
+              func={() => { navigation.navigate('TreeBin', { topid: form.ref_id, slot_x: form.ref_slot_x, slot_y: form.ref_slot_y, type_hu: form.type_hu }) }}
+              height={100}
+            />
+          </View>         
+
           <View style={{ marginBottom: 70 }}>  
             <Input
               placeholder='Password'
@@ -148,8 +242,9 @@ const Jaringan = ({ navigation, route }) => {
               value={form.address}
               onChangeText={(value) => onInputChange('address', value)}
             />
+            
             <View style={{ marginTop: 20, alignItems: 'center', justifyContent: 'center' }}>
-              {form.address != '' && form.name != '' && form.phone != '' && confirm != '' && form.password != '' && form.email != '' ?
+              {form.slot_x > 0 && form.slot_y > 0 && form.address != '' && form.name != '' && form.phone != '' && confirm != '' && form.password != '' && form.email != '' ?
                 form.password == confirm ? (
                   <ButtonCustom
                     name='Selanjutnya'

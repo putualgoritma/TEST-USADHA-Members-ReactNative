@@ -8,7 +8,7 @@ import CheckBox from '@react-native-community/checkbox';
 import {useDispatch,useSelector} from 'react-redux';
 import Axios from 'axios';
 import {useIsFocused} from '@react-navigation/native';
-import { token_api } from '../../redux/action';
+import { token_api,count_hu,status_up } from '../../redux/action';
 import Releoder from '../../component/Releoder';
 import OneSignal from 'react-native-onesignal'
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -69,7 +69,9 @@ const Login = ({navigation}) => {
         }
     }).then((res) => {
         dispatch(token_api(res.data.token.token))
+        dispatch(count_hu(res.data.hu))
         dispatch({type: 'SET_DATA_USER', value: res.data.user});
+        dispatch(status_up(res.data.status_up))
         console.log('data login', res.data)
         // Alert.alert('Login Success');
         loginBlock('0')
@@ -79,7 +81,11 @@ const Login = ({navigation}) => {
         }else{
           storeDataToken(res.data.token.token)
           storeDataUser( res.data.user)
+          if(res.data.hu == 3){
+            navigation.replace('HU')
+          }else{
           navigation.replace('MainApp');
+          }
         }
       setIsLoading(false)
     })

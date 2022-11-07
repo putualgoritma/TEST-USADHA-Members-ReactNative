@@ -12,6 +12,7 @@ import circleup from './icon/CircleUp.png'
 import circleright from './icon/CircleRight.png'
 import circledown from './icon/CircleDown.png'
 import circleleft from './icon/CircleLeft.png'
+import account from './account/account.png';
 export {
   background,
   promo1,
@@ -26,5 +27,6 @@ export {
   circledown,
   circleup,
   circleright,
-  circleleft
+  circleleft,
+  account
 };

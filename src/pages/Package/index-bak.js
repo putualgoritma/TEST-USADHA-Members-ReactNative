@@ -43,7 +43,6 @@ const Package = ({ navigation, route }) => {
   const [checkeddef, setCheckeddef] = useState(0);
   const userReducer = useSelector((state) => state.UserReducer);
   const [actBalance, setActBalance] = useState(0);  
-  const [form, setForm] = useState(route.params.dataForm);
 
   useEffect(() => {
     console.log('userReducer.id', userReducer.id)
@@ -133,16 +132,8 @@ const Package = ({ navigation, route }) => {
   }
 
   const apiActivations = () => {
-    let min_type = 1
-    if (dataType == 'Jaringan') {
-      if (dataForm.type_hu == 3) {
-        setChecked('gold')
-        setActivationType(3)
-        min_type = 2
-      }
-    }
     const promise = new Promise((resolve, reject) => {
-      Axios.get(Config.API_ACTIVATION_TYPE + `?min=${min_type}`,
+      Axios.get(Config.API_ACTIVATION_TYPE,
         {
           headers: {
             Authorization: `Bearer ${TOKEN}`,
@@ -237,83 +228,6 @@ const Package = ({ navigation, route }) => {
   return (
     <View style={styles.container}>
       <HeaderComponent />
-
-      <View style={{ paddingHorizontal: 20, paddingVertical: 10 }}>
-          <Text style={styles.textKeranjang}>
-              Member Detail:
-            </Text>
-            {form.type_hu_name &&
-            <View
-              style={{
-                flexDirection: 'row',
-                justifyContent: 'space-between',
-                marginBottom: 6,
-              }}>
-              <Text>Tipe HU: </Text>
-              <Text>
-                {form.type_hu_name}
-              </Text>
-            </View>
-            }
-            <View
-              style={{
-                flexDirection: 'row',
-                justifyContent: 'space-between',
-                marginBottom: 6,
-              }}>
-              <Text>Nama: </Text>
-              <Text>
-                {form.name}
-              </Text>
-            </View>
-
-            <View
-              style={{
-                flexDirection: 'row',
-                justifyContent: 'space-between',
-                marginBottom: 6,
-              }}>
-              <Text>Phone: </Text>
-              <Text>
-                {form.phone}
-              </Text>
-            </View>
-            <View
-              style={{
-                flexDirection: 'row',
-                justifyContent: 'space-between',
-                marginBottom: 6,
-              }}>
-              <Text>Email: </Text>
-              <Text>
-                {form.email}
-              </Text>
-            </View>
-            {form.refferal &&
-            <View
-              style={{
-                flexDirection: 'row',
-                justifyContent: 'space-between',
-                marginBottom: 6,
-              }}>
-              <Text>Referal: </Text>
-              <Text>
-                {form.refferal.name}
-              </Text>
-            </View>
-            }            
-            <View
-              style={{
-                flexDirection: 'row',
-                justifyContent: 'space-between',
-                marginBottom: 6,
-              }}>
-              <Text>
-                {form.address}
-              </Text>
-            </View>
-          </View>
-
       <View style={styles.contentHeader}>
         <Text style={styles.textKeranjang}>Pilih Tipe:</Text>
         {activations.map((item) => {

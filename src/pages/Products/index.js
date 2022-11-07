@@ -44,6 +44,8 @@ const Products = ({ navigation, route }) => {
   const dispatch = useDispatch();
   const dataForm = route.params.dataForm;
   const dataType = route.params.dataType;
+  //alert('yu')  
+  const activation_type_id = route.params.activation_type_id;
   // var penanda = false;
 
   useEffect(() => {
@@ -81,14 +83,21 @@ const Products = ({ navigation, route }) => {
   };
 
   const apiProducts = () => {
+    //alert('activation_type_id')
+    let apiList=Config.API_LIST_PRODUCT_MEMBER;
+    if(dataType=='Activasi' || dataType=='Jaringan'){
+      apiList=Config.API_LIST_PRODUCT_MEMBER_PACKAGE;
+    }
     const promise = new Promise((resolve, reject) => {
-      Axios.get(Config.API_LIST_PRODUCT_MEMBER + `?page=${page}&keyword=${find}`,
+      Axios.get(apiList + `?activation_type_id=${activation_type_id}&page=${page}&keyword=${find}`,
         {
           headers: {
             Authorization: `Bearer ${TOKEN}`,
             'Accept': 'application/json'
           }
         }).then((result) => {
+          // alert(activation_type_id)
+          // console.log('Product/Package',result.data)
           resolve(result.data);
         }, (err) => {
           reject(err);
